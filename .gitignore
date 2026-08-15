@@ -1,0 +1,17 @@
+# Segredos e configuração local — nunca vai pro GitHub
+.env
+
+# Banco de histórico local (dados de sensores ficam só no celular)
+backend/history.sqlite3
+backend/__pycache__/
+**/__pycache__/
+*.pyc
+
+# Ambiente virtual Python
+venv/
+
+# Node (se optar por essa alternativa)
+node_modules/
+
+# Sistema
+.DS_Store
