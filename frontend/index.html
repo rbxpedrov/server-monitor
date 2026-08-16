@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Server Monitor</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<!-- Tela de login (token) -->
+<div id="login-screen" class="login-screen">
+  <div class="login-box">
+    <h1>SERVER MONITOR</h1>
+    <p class="muted">Digite o token de acesso do servidor</p>
+    <input id="token-input" type="password" placeholder="Token de acesso" autocomplete="off">
+    <button id="login-btn">Entrar</button>
+    <p id="login-error" class="error-text"></p>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-title">SERVER MONITOR</span>
+      <span id="conn-indicator" class="badge badge-offline">● CONECTANDO...</span>
+    </div>
+    <div class="topbar-right">
+      <span id="last-update" class="muted small">—</span>
+      <button id="logout-btn" class="btn-ghost">Sair</button>
+    </div>
+  </header>
+
+  <div id="alerts-bar" class="alerts-bar"></div>
+
+  <main class="grid-main">
+
+    <section class="cards-grid">
+      <div class="card" data-metric="cpu">
+        <div class="card-label">CPU</div>
+        <div class="card-value" id="cpu-value">—</div>
+        <div class="card-bar"><div class="card-bar-fill" id="cpu-bar"></div></div>
+      </div>
+      <div class="card" data-metric="ram">
+        <div class="card-label">RAM</div>
+        <div class="card-value" id="ram-value">—</div>
+        <div class="card-bar"><div class="card-bar-fill" id="ram-bar"></div></div>
+      </div>
+      <div class="card" data-metric="temp">
+        <div class="card-label">TEMPERATURA</div>
+        <div class="card-value" id="temp-value">—</div>
+        <div class="card-sub" id="temp-sub">—</div>
+      </div>
+      <div class="card" data-metric="battery">
+        <div class="card-label">BATERIA</div>
+        <div class="card-value" id="battery-value">—</div>
+        <div class="card-sub" id="battery-sub">—</div>
+      </div>
+      <div class="card" data-metric="network">
+        <div class="card-label">INTERNET</div>
+        <div class="card-value" id="ping-value">—</div>
+        <div class="card-sub" id="net-sub">—</div>
+      </div>
+      <div class="card" data-metric="storage">
+        <div class="card-label">ARMAZENAMENTO</div>
+        <div class="card-value" id="storage-value">—</div>
+        <div class="card-bar"><div class="card-bar-fill" id="storage-bar"></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Histórico</h2>
+        <div class="period-select">
+          <button class="period-btn active" data-period="5m">5 min</button>
+          <button class="period-btn" data-period="1h">1 hora</button>
+          <button class="period-btn" data-period="6h">6 horas</button>
+          <button class="period-btn" data-period="24h">24 horas</button>
+        </div>
+      </div>
+      <div class="charts-grid">
+        <div class="chart-box"><span class="chart-title">CPU %</span><canvas id="chart-cpu"></canvas></div>
+        <div class="chart-box"><span class="chart-title">RAM %</span><canvas id="chart-ram"></canvas></div>
+        <div class="chart-box"><span class="chart-title">Temperatura °C</span><canvas id="chart-temp"></canvas></div>
+        <div class="chart-box"><span class="chart-title">Ping (ms)</span><canvas id="chart-ping"></canvas></div>
+        <div class="chart-box"><span class="chart-title">Rede (KB/s)</span><canvas id="chart-net"></canvas></div>
+        <div class="chart-box"><span class="chart-title">Jogadores online</span><canvas id="chart-players"></canvas></div>
+      </div>
+    </section>
+
+    <section class="panel" id="minecraft-panel">
+      <div class="panel-header">
+        <h2>Minecraft</h2>
+        <span id="mc-status-badge" class="badge badge-offline">● OFFLINE</span>
+      </div>
+      <div class="mc-grid">
+        <div><span class="muted small">Endereço</span><div id="mc-address">—</div></div>
+        <div><span class="muted small">Versão</span><div id="mc-version">—</div></div>
+        <div><span class="muted small">Jogadores</span><div id="mc-players">—</div></div>
+        <div><span class="muted small">Ping</span><div id="mc-ping">—</div></div>
+        <div><span class="muted small">Uptime processo</span><div id="mc-uptime">—</div></div>
+        <div><span class="muted small">CPU / RAM (processo)</span><div id="mc-proc">—</div></div>
+        <div><span class="muted small">TPS</span><div id="mc-tps">—</div></div>
+        <div><span class="muted small">MOTD</span><div id="mc-motd">—</div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Processos</h2>
+        <div class="period-select">
+          <button class="sort-btn active" data-sort="cpu">CPU</button>
+          <button class="sort-btn" data-sort="ram">RAM</button>
+          <button class="sort-btn" data-sort="pid">PID</button>
+          <button class="sort-btn" data-sort="name">Nome</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="processes-table">
+          <thead><tr><th>PID</th><th>Nome</th><th>CPU %</th><th>RAM %</th><th>Usuário</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Informações do dispositivo</h2>
+      </div>
+      <div class="mc-grid" id="device-info"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <h2>Notificações</h2>
+        <span id="git-sync-status" class="muted small">sync: —</span>
+      </div>
+      <div id="notifications-list" class="notifications-list"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/script.js"></script>
+</body>
+</html>
